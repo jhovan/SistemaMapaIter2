@@ -1,4 +1,4 @@
-/*
+    /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
@@ -7,8 +7,10 @@ package com.xiutech.simix.controlador;
 
 import com.xiutech.simix.modelo.Marcador;
 import com.xiutech.simix.modelo.MarcadorDAO;
+import com.xiutech.simix.modelo.Tema;
+import com.xiutech.simix.modelo.TemaDAO;
 import java.util.List;
-import javax.annotation.PostConstruct;
+import java.util.Set;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import org.primefaces.PrimeFaces;
@@ -19,28 +21,26 @@ import org.primefaces.model.map.MapModel;
 import org.primefaces.model.map.Marker;
 
 /**
- * Clase para la visualizacion de marcadores.
- * @author Jose Fernando Reyes Garcia
- * @version 11/05/19 
+ *
+ * @author fercho117
  */
-@ManagedBean
 @ViewScoped
-public class VerMarcadores {
+@ManagedBean
+public class VerMarcadoresTema {
     private MapModel simpleModel;
     private Marker markerSelected;
-    private Marcador marcadorSeleccionado;
+    private Marcador marcadorSeleccionado;    
     
-    @PostConstruct
-    public void verMarcadores(){
-        setSimpleModel(new DefaultMapModel());
+    public void verMarcadores(String nombre_tema){
+        this.setSimpleModel(new DefaultMapModel());
         MarcadorDAO marcadorDAO = new MarcadorDAO();
-        List<Marcador> marcadores = marcadorDAO.findAll();
-        for(Marcador m :marcadores){
-            LatLng cord = new LatLng(m.getLatitud(),m.getLongitud());
-            Marker marcador = new Marker(cord,m.getDescripcion());
-            getSimpleModel().addOverlay(marcador);
-        }
         
+        List<Marcador> marcadores = marcadorDAO.buscaPorTema(nombre_tema);
+        for(Marcador m:marcadores){
+            LatLng cord = new LatLng(m.getLatitud(),m.getLongitud());
+            Marker mark = new Marker(cord,m.getDescripcion());            
+            this.getSimpleModel().addOverlay(mark);
+        }    
     }
 
     /**
@@ -85,15 +85,11 @@ public class VerMarcadores {
         this.marcadorSeleccionado = marcadorSeleccionado;
     }
     
-    /**
-     * Metodo para mostrar detalles al seleccionar un marcador.
-     * @param event El evento en que se realiza la accion.
-     */
     public void onMarkerSelect(OverlaySelectEvent event) {
        this.markerSelected =(Marker) event.getOverlay();
        MarcadorDAO mDAO = new MarcadorDAO();
        this.marcadorSeleccionado = mDAO.buscaPorLatLng(markerSelected.getLatlng().getLat(), markerSelected.getLatlng().getLng());
        PrimeFaces current = PrimeFaces.current();
-       current.executeScript("PF('dlg').show();");
+       current.executeScript("PF('dlg').show();");  
     }
 }
